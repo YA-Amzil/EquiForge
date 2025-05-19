@@ -1,0 +1,32 @@
+@import './base.css';
+
+html, body {
+  background: linear-gradient(#39251A 0%, #39251A 82%, #2B2B2B 87%, #2B2B2B 100%) fixed;
+}
+
+#app {
+  padding: 0;
+  font-weight: normal;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100dvh;
+}
+
+a {
+  text-decoration: none;
+  color: dodgerblue;
+  transition: 0.4s;
+  padding: 3px;
+}
+
+@media (min-width: 1300px) {
+  body {
+    display: block;
+    place-items: center;
+  }
+
+  #app {
+    grid-template-columns: 1fr 1fr;
+  }
+}
