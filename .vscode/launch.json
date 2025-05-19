@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-BackendApplication<aon03>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "be.pxl.researchproject.BackendApplication",
+            "projectName": "aon03",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
