@@ -1,22 +1,54 @@
 package be.pxl.researchproject.service;
 
-import java.util.List;
-import be.pxl.researchproject.api.request.*;
 import be.pxl.researchproject.api.response.FoalDTO;
-import io.swagger.v3.oas.models.links.Link;
+import be.pxl.researchproject.domain.Foal;
+import be.pxl.researchproject.domain.Horse;
+import be.pxl.researchproject.exception.FoalNotFoundException;
+import be.pxl.researchproject.repository.FoalRepository;
+import be.pxl.researchproject.repository.HorseRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-public interface FoalService {
-    Long createFoal(CreateFoalRequest createFoalRequest);
+import java.time.LocalDate;
+import java.util.List;
 
-    FoalDTO getFoalById(Long id);
+@Service
+@Transactional
+public class FoalService {
 
-    List<FoalDTO> getAllFoals();
+    private final FoalRepository foalRepository;
+    private final HorseRepository horseRepository;
+    private final DewormingSchedulerService dewormingSchedulerService;
 
-    FoalDTO updateFoal(Long id, UpdateFoalRequest updateFoalRequest);
+    public FoalService(FoalRepository foalRepository, HorseRepository horseRepository, DewormingSchedulerService dewormingSchedulerService) {
+        this.foalRepository = foalRepository;
+        this.horseRepository = horseRepository;
+        this.dewormingSchedulerService = dewormingSchedulerService;
+    }
 
-    boolean deleteFoal(Long id);
+    public Long createFoal(String name, LocalDate birthDate, Long motherHorseId) {
+        Horse motherHorse = horseRepository.findById(motherHorseId)
+                .orElseThrow(() -> new FoalNotFoundException("Horse not found"));
 
-    String getSchedule(Long id);
+        Foal foal = new Foal(name, birthDate, motherHorse);
+        foal.setDewormingSchedule(dewormingSchedulerService.generateDewormingSchedule(birthDate));
 
-    void updateFoalSchedule(long id, UpdateFoalScheduleRequest updateFoalscheduleRequest);
+        return foalRepository.save(foal).getId();
+    }
+
+    public FoalDTO getFoalById(Long id) {
+        return foalRepository.findById(id)
+                .map(FoalDTO::new)
+                .orElseThrow(() -> new FoalNotFoundException("Foal not found"));
+    }
+
+    public List<FoalDTO> getAllFoals() {
+        return foalRepository.findAll().stream().map(FoalDTO::new).toList();
+    }
+
+    public void deleteFoal(Long id) {
+        Foal foal = foalRepository.findById(id).orElseThrow(() -> new FoalNotFoundException("Foal not found"));
+        foalRepository.delete(foal);
+    }
 }
+
